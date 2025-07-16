@@ -23,8 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-# Define the state of the game for the "Queens" game.
-# The "Game" object contains the logic about how to play.
+# Define the state of the game for the "Queens" game,
+# and provide the logic about how to play.
 
 
 from BoardGeom import BoardGeom
@@ -51,9 +51,9 @@ class Game():
         for col in range(self._size):
             pieces.append(' ')
             if which == DISPLAY_COLOR:
-                info = self._board_geom.get_cell_color(row, col)
+                info = self._board_geom.cell_color(row, col)
             else:
-                info = self._board_state.get_cell_state(row, col)
+                info = self._board_state.cell_state(row, col)
             pieces.append(info)
             pieces.append(' |')
         print("".join(pieces))
@@ -65,6 +65,9 @@ class Game():
             self._show_horiz_info(row, which)
 
     def play(self):
+        self._solve(self._board_state)
+
+    def _solve(self, board_state):
         while True:
             self.show(DISPLAY_STATE)
             print()
@@ -138,7 +141,7 @@ class Game():
             row = line_cell.row()
             col = line_cell.col()
             if (line_cell not in free_cells and
-                    bs.get_cell_state(row, col) != BLOCKED):
+                    bs.cell_state(row, col) != BLOCKED):
                 bs.set_cell_state(row, col, BLOCKED)
                 changed = True
         return changed

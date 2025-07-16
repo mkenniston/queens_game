@@ -39,7 +39,7 @@ class Group():
     def name(self):
         return self._name
 
-    def add(self, cell):
+    def add_cell(self, cell):
         self._cells.append(cell)
 
     def cells(self):

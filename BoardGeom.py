@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-# Define the playing area for the "Queens" game
+# Define the playing area for the "Queens" game.
 # The "BoardGeom" object contains all the immutable information.
 
 
@@ -35,7 +35,6 @@ class BoardGeom():
     def __init__(self, description):
         desc_lines = self._parse(description)
         self._size = len(desc_lines)
-        self._cells = []
 
         # Create all the groups.
         self._row_groups = []
@@ -57,15 +56,16 @@ class BoardGeom():
             self._groups.append(g)
             group_number += 1
 
-        # Fill in the colors from the input file.
+        # Fill in the cell colors from the input file.
+        self._cells = []
         for row in range(self._size):
             this_row = []
             for col in range(self._size):
                 color = desc_lines[row][col]
                 cell = Cell(row, col, color)
-                self._row_groups[row].add(cell)
-                self._col_groups[col].add(cell)
-                self._color_groups[color].add(cell)
+                self._row_groups[row].add_cell(cell)
+                self._col_groups[col].add_cell(cell)
+                self._color_groups[color].add_cell(cell)
                 this_row.append(cell)
             self._cells.append(this_row)
 
@@ -87,7 +87,7 @@ class BoardGeom():
     def color_groups(self):
         return self._color_groups.values()
 
-    def get_cell_color(self, row, col):
+    def cell_color(self, row, col):
         # print("DEBUG: getting color for (%d, %d)" % (row, col))
         cell = self._cells[row][col]
         # print("       found color %s" % cell.color())
