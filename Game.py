@@ -72,13 +72,13 @@ class Game():
             self.show(DISPLAY_STATE)
             print()
 
-            if self._board_state.num_queens() == self._size:
+            if board_state.num_queens() == self._size:
                 print("The game is won!")
                 return
 
-            if self._add_a_queen():
+            if self._add_a_queen(board_state):
                 continue
-            if self._reserve_linear_free_space():
+            if self._reserve_linear_free_space(board_state):
                 continue
 
             break
@@ -87,10 +87,10 @@ class Game():
     # Look for a group which has exactly one free cell.
     # A queen must go there (for rows, columns, and color groups).
 
-    def _add_a_queen(self):
-        bs = self._board_state
-        for group in self._board_geom.groups():
-            free_cells = bs.get_cells_in_group(group, state=FREE)
+    def _add_a_queen(self, board_state):
+        geom = board_state._board_geom
+        for group in geom.groups():
+            free_cells = board_state.get_cells_in_group(group, state=FREE)
             if len(free_cells) == 1:
                 cell = free_cells[0]
                 self._board_state.set_cell_state(cell.row(), cell.col(), QUEEN)
@@ -104,11 +104,11 @@ class Game():
     # The Queen must go in one of those, so block all other cells
     # in that row or column.
 
-    def _reserve_linear_free_space(self):
-        bs = self._board_state
-        bg = bs._board_geom
-        for color_group in bg.color_groups():
-            free_cells = bs.get_cells_in_group(color_group, state=FREE)
+    def _reserve_linear_free_space(self, board_state):
+        geom = board_state._board_geom
+        for color_group in geom.color_groups():
+            free_cells = board_state.get_cells_in_group(
+                             color_group, state=FREE)
             free_rows = set()
             free_cols = set()
             for cell in free_cells:
@@ -117,8 +117,8 @@ class Game():
 
             if len(free_rows) == 1:
                 row_number = free_rows.pop()
-                line_cells = bg.row_group(row_number).cells()
-                if self._reserve_strip(bs, free_cells, line_cells):
+                line_cells = geom.row_group(row_number).cells()
+                if self._reserve_strip(board_state, free_cells, line_cells):
                     print("group %s has all free cells in row %d, "
                           " block the rest of the row" %
                           (color_group.name(), cell.row()))
@@ -126,8 +126,8 @@ class Game():
 
             if len(free_cols) == 1:
                 col_number = free_cols.pop()
-                line_cells = bg.col_group(col_number).cells()
-                if self._reserve_strip(bs, free_cells, line_cells):
+                line_cells = geom.col_group(col_number).cells()
+                if self._reserve_strip(board_state, free_cells, line_cells):
                     print("group %s has all free cells in col %d, "
                           " block the rest of the col" %
                           (color_group.name(), cell.col()))

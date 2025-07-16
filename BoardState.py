@@ -93,6 +93,37 @@ class BoardState():
     def cell_state(self, row, col):
         return self._cell_states[row][col]
 
+    def _set_blocked_by_queen(self, row, col):
+        size = self._board_geom.size()
+
+        # Block all immediate neighbors of the new queen.
+        for row_inc in [-1, 0, +1]:
+            for col_inc in [-1, 0, +1]:
+                if row_inc == 0 and col_inc == 0:
+                    continue  # don't block queen's own cell
+                self.set_cell_state(row + row_inc, col + col_inc, BLOCKED)
+
+        # Block all other cells in the same col as the new queen.
+        for r in range(size):
+            if r == row:
+                continue
+            self.set_cell_state(r, col, BLOCKED)
+
+        # Block all other cells in the same row as the new queen.
+        for c in range(size):
+            if c == col:
+                continue
+            self.set_cell_state(row, c, BLOCKED)
+
+        # Block all other cells the same color as the new queen's cell.
+        geom = self._board_geom
+        color = geom.cell_color(row, col)
+        group = geom.color_group(color)
+        for cell in group.cells():
+            if cell.row() == row and cell.col() == col:
+                continue  # don't block queen's own cell
+            self.set_cell_state(cell.row(), cell.col(), BLOCKED)
+
     def set_cell_state(self, row, col, new_state):
         size = self._board_geom.size()
         if row < 0 or row >= size or col < 0 or col >= size:
@@ -109,17 +140,5 @@ class BoardState():
 
         self._cell_states[row][col] = new_state
         if new_state == QUEEN:
-            for row_inc in [-1, 0, +1]:
-                for col_inc in [-1, 0, +1]:
-                    if row_inc == 0 and col_inc == 0:
-                        continue
-                    self.set_cell_state(row + row_inc, col + col_inc, BLOCKED)
-            for r in range(size):
-                if r == row:
-                    continue
-                self.set_cell_state(r, col, BLOCKED)
-            for c in range(size):
-                if c == col:
-                    continue
-                self.set_cell_state(row, c, BLOCKED)
             self._num_queens += 1
+            self._set_blocked_by_queen(row, col)
