@@ -1,0 +1,13 @@
+
+More tasks:
+
+- add a try/catch when guessing inside "solve()"
+- when a queen guess fails, block that cell
+
+- clean up names, BoardGeom -> Geometry
+	BoardState -> State
+- add a check to fail the solve branch if a non-queened group is fully blocked
+- maybe don't bother caching free-counts, to simplify code
+- use 4 types of groups (add neighborhoods), try to regularize
+	the code, add links from each cell to the 4 groups it determines
+
