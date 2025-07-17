@@ -28,7 +28,6 @@ THE SOFTWARE.
 
 import sys
 from Game import Game
-from Game import DISPLAY_COLOR
 
 
 def main():
@@ -39,8 +38,6 @@ def main():
         description = file.read()
 
     game = Game(description)
-    game.show(DISPLAY_COLOR)
-    print()
     game.play()
 
 

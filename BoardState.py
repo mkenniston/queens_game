@@ -53,15 +53,16 @@ class BoardState():
         self.recalc_free_cells()
         self._num_queens = 0
 
-    def _init_copy(self, new_copy):
-        new_copy._board_geom = self._board_geom
-        new_copy._groups = self._groups
+    def _init_copy(self, orig):
+        # "self" is the new copy
+        self._board_geom = orig._board_geom
+        self._groups = orig._groups
         size = self._board_geom.size()
-        new_copy._cell_states = [[self._cell_states[row][col]
-                                  for row in range(size)]
-                                 for col in range(size)]
-        new_copy.recalc_free_cells()
-        new_copy._num_queens = self._num_queens
+        self._cell_states = [[orig._cell_states[row][col]
+                              for col in range(size)]
+                             for row in range(size)]
+        self.recalc_free_cells()
+        self._num_queens = orig._num_queens
 
     def board_geom(self):
         return self._board_geom
@@ -87,8 +88,11 @@ class BoardState():
             result.append(cell)
         return result
 
-    def num_free_in_group(self, group_number):
+    def num_free_cells_in_group(self, group_number):
         return len(self._free_cells[group_number])
+
+    def free_cells_in_group(self, group_number):
+        return self._free_cells[group_number]
 
     def cell_state(self, row, col):
         return self._cell_states[row][col]

@@ -39,6 +39,7 @@ class Game():
         self._board_geom = BoardGeom(description)
         self._size = self._board_geom.size()
         self._board_state = BoardState(self._board_geom)
+        self.show(self._board_state, DISPLAY_COLOR)
 
     def _show_horiz_line(self):
         pieces = ['+']
@@ -46,54 +47,80 @@ class Game():
             pieces.append('---+')
         print("".join(pieces))
 
-    def _show_horiz_info(self, row, which):
+    def _show_horiz_info(self, board_state, row, which):
         pieces = ['|']
         for col in range(self._size):
             pieces.append(' ')
             if which == DISPLAY_COLOR:
-                info = self._board_geom.cell_color(row, col)
+                info = board_state._board_geom.cell_color(row, col)
             else:
-                info = self._board_state.cell_state(row, col)
+                info = board_state.cell_state(row, col)
             pieces.append(info)
             pieces.append(' |')
         print("".join(pieces))
         self._show_horiz_line()
 
-    def show(self, which):
+    def show(self, board_state, which):
         self._show_horiz_line()
         for row in range(self._size):
-            self._show_horiz_info(row, which)
+            self._show_horiz_info(board_state, row, which)
+        print()
 
     def play(self):
-        self._solve(self._board_state)
+        rv = self._solve(self._board_state)
+        if rv:
+            print("The game is won!")
 
     def _solve(self, board_state):
         while True:
-            self.show(DISPLAY_STATE)
-            print()
+            board_state.recalc_free_cells()
+            self.show(board_state, DISPLAY_STATE)
 
             if board_state.num_queens() == self._size:
-                print("The game is won!")
-                return
+                return True
 
             if self._add_a_queen(board_state):
                 continue
             if self._reserve_linear_free_space(board_state):
                 continue
 
-            break
-        print("no more moves found")
+            return self._try_guesses(board_state)
+
+    def _try_guesses(self, board_state):
+        # Sort groups by number of free cells
+        groups = board_state.board_geom().groups()
+        sort_by_num_free = (
+            lambda x: board_state.num_free_cells_in_group(x.number()))
+        sorted_groups = sorted(groups, key=sort_by_num_free)
+        for group in sorted_groups:
+            free_cells = board_state.free_cells_in_group(group.number())
+            num_free_cells = len(free_cells)
+            if num_free_cells > 0:
+                print("looking at group %s with %d free" %
+                      (group.name(), num_free_cells))
+                for queen in free_cells:
+                    qr = queen.row()
+                    qc = queen.col()
+                    trial_state = BoardState(board_state)
+                    print("making a guess: try a queen at %d, %d" % (qr, qc))
+                    print("TRACE A: %s" % trial_state.cell_state(qr, qc))
+                    trial_state.set_cell_state(qr, qc, QUEEN)
+                    print("TRACE B: %s" % trial_state.cell_state(qr, qc))
+                    if self._solve(trial_state):
+                        return True
+                    print("retracting guess at %d, %d" % (qr, qc))
+        return False
 
     # Look for a group which has exactly one free cell.
     # A queen must go there (for rows, columns, and color groups).
 
     def _add_a_queen(self, board_state):
-        geom = board_state._board_geom
+        geom = board_state.board_geom()
         for group in geom.groups():
             free_cells = board_state.get_cells_in_group(group, state=FREE)
             if len(free_cells) == 1:
                 cell = free_cells[0]
-                self._board_state.set_cell_state(cell.row(), cell.col(), QUEEN)
+                board_state.set_cell_state(cell.row(), cell.col(), QUEEN)
                 print("group %s has only one free cell,"
                       " put a Queen at (%d, %d)" % (
                        group.name(), cell.row(), cell.col()))
@@ -101,11 +128,11 @@ class Game():
         return False
 
     # Look for a group whose free cells are all in one row or column.
-    # The Queen must go in one of those, so block all other cells
-    # in that row or column.
+    # The Queen must go in one of those, so block all cells
+    # in that row or column that belong to other groups.
 
     def _reserve_linear_free_space(self, board_state):
-        geom = board_state._board_geom
+        geom = board_state.board_geom()
         for color_group in geom.color_groups():
             free_cells = board_state.get_cells_in_group(
                              color_group, state=FREE)
@@ -119,7 +146,7 @@ class Game():
                 row_number = free_rows.pop()
                 line_cells = geom.row_group(row_number).cells()
                 if self._reserve_strip(board_state, free_cells, line_cells):
-                    print("group %s has all free cells in row %d, "
+                    print("all group %s free cells are in row %d, "
                           " block the rest of the row" %
                           (color_group.name(), cell.row()))
                     return True
@@ -128,7 +155,7 @@ class Game():
                 col_number = free_cols.pop()
                 line_cells = geom.col_group(col_number).cells()
                 if self._reserve_strip(board_state, free_cells, line_cells):
-                    print("group %s has all free cells in col %d, "
+                    print("all group %s free cells are in col %d, "
                           " block the rest of the col" %
                           (color_group.name(), cell.col()))
                     return True
