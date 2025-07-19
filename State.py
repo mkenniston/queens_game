@@ -27,6 +27,7 @@ THE SOFTWARE.
 # The "State" object contains all the mutable information.
 
 
+from Util import FatalException
 from Geometry import Geometry
 
 FREE = ' '
@@ -42,7 +43,7 @@ class State():
         elif isinstance(arg, State):
             self._init_copy(arg)
         else:
-            raise BaseException("illegal arg type %s" % type(arg))
+            raise FatalException("illegal arg type %s" % type(arg))
         return
 
     def _init_new(self, geom):
@@ -70,10 +71,16 @@ class State():
     def num_queens(self):
         return self._num_queens
 
+    def num_total_free_cells(self):
+        return self._num_total_free_cells
+
     def recalc_free_cells(self):
         self._free_cells = []
+        self._num_total_free_cells = 0
         for g in self._groups:
-            self._free_cells.append(self.get_cells_in_group(g, state=FREE))
+            free_in_this_group = self.get_cells_in_group(g, state=FREE)
+            self._free_cells.append(free_in_this_group)
+            self._num_total_free_cells += len(free_in_this_group)
 
     def get_cells_in_group(self, group, row=None, col=None, state=None):
         result = []
@@ -106,18 +113,21 @@ class State():
                 if row_inc == 0 and col_inc == 0:
                     continue  # don't block queen's own cell
                 self.set_cell_state(row + row_inc, col + col_inc, BLOCKED)
+                # print("TRACE nbr %d, %d" % (row + row_inc, col + col_inc))
 
         # Block all other cells in the same col as the new queen.
         for r in range(size):
             if r == row:
                 continue
             self.set_cell_state(r, col, BLOCKED)
+            # print("TRACE col %d, %d" % (r, col))
 
         # Block all other cells in the same row as the new queen.
         for c in range(size):
             if c == col:
                 continue
             self.set_cell_state(row, c, BLOCKED)
+            # print("TRACE row %d, %d" % (row, c))
 
         # Block all other cells the same color as the new queen's cell.
         geom = self._geom
@@ -127,22 +137,26 @@ class State():
             if cell.row() == row and cell.col() == col:
                 continue  # don't block queen's own cell
             self.set_cell_state(cell.row(), cell.col(), BLOCKED)
+            # print("TRACE %s, %d, %d" % (color, cell.row(), cell.col()))
 
     def set_cell_state(self, row, col, new_state):
         size = self._geom.size()
         if row < 0 or row >= size or col < 0 or col >= size:
             return  # make it easier to block cells adjacent to new queen
         if new_state not in ALL_STATES:
-            raise BaseException("illegal state %s" % new_state)
+            raise FatalException("illegal state %s" % new_state)
         old_state = self._cell_states[row][col]
         if new_state == old_state:
             return  # harmless no-op
+        if row == 0 and col == 1:
+            print("CHANGING %d, %d to %s" % (row, col, new_state))
         if old_state == BLOCKED:
-            raise BaseException("attempt to unblock (%d, %d)" % (row, col))
+            raise FatalException("attempt to unblock (%d, %d)" % (row, col))
         if old_state == QUEEN:
-            raise BaseException("attempt to unqueen (%d, %d)" % (row, col))
+            raise FatalException("attempt to unqueen (%d, %d)" % (row, col))
 
         self._cell_states[row][col] = new_state
         if new_state == QUEEN:
             self._num_queens += 1
             self._set_blocked_by_queen(row, col)
+            print("num_queens = %d" % self._num_queens)

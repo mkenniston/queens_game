@@ -1,8 +1,7 @@
 
 More tasks:
 
-- add a try/catch when guessing inside "solve()"
-- when a queen guess fails, block that cell
+- add unittests
 
 - add a check to fail the solve branch if a non-queened group is fully blocked
 - maybe don't bother caching free-counts, to simplify code

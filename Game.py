@@ -27,6 +27,7 @@ THE SOFTWARE.
 # and provide the logic about how to play.
 
 
+from Util import Solution
 from Geometry import Geometry
 from State import State, FREE, BLOCKED, QUEEN
 
@@ -67,49 +68,62 @@ class Game():
         print()
 
     def play(self):
-        rv = self._solve(self._state)
-        if rv:
+        try:
+            self._solve(self._state, 0)
+            print("No solution found")
+        except Solution as e:
             print("The game is won!")
+            self.show(e.state(), DISPLAY_STATE)
 
-    def _solve(self, state):
+    def _solve(self, state, level):
         while True:
+            print("solving at level %d" % level)
             state.recalc_free_cells()
             self.show(state, DISPLAY_STATE)
+            print("num_queens = %d" % state.num_queens())
 
             if state.num_queens() == self._size:
-                return True
+                raise Solution("solution found", state)
+            if state.num_total_free_cells() < 1:
+                return False
 
             if self._add_a_queen(state):
                 continue
             if self._reserve_linear_free_space(state):
                 continue
+            if self._try_guesses(state, level):
+                continue
 
-            return self._try_guesses(state)
+            return False
 
-    def _try_guesses(self, state):
+    def _try_guesses(self, state, level):
         # Sort groups by number of free cells
+        print("begin making guesses at level %d" % level)
         groups = state.geom().groups()
         sort_by_num_free = (
             lambda x: state.num_free_cells_in_group(x.number()))
         sorted_groups = sorted(groups, key=sort_by_num_free)
         for group in sorted_groups:
             free_cells = state.free_cells_in_group(group.number())
-            num_free_cells = len(free_cells)
-            if num_free_cells > 0:
+            if len(free_cells) > 0:
                 print("looking at group %s with %d free" %
-                      (group.name(), num_free_cells))
-                for queen in free_cells:
-                    qr = queen.row()
-                    qc = queen.col()
+                      (group.name(), len(free_cells)))
+                for queen_candidate in free_cells:
+                    qr = queen_candidate.row()
+                    qc = queen_candidate.col()
                     trial_state = State(state)
                     print("making a guess: try a queen at %d, %d" % (qr, qc))
                     print("TRACE A: %s" % trial_state.cell_state(qr, qc))
+                    self.show(state, DISPLAY_STATE)
                     trial_state.set_cell_state(qr, qc, QUEEN)
                     print("TRACE B: %s" % trial_state.cell_state(qr, qc))
-                    if self._solve(trial_state):
+                    if self._solve(trial_state, level + 1):
                         return True
                     print("retracting guess at %d, %d" % (qr, qc))
                     state.set_cell_state(qr, qc, BLOCKED)
+                    return True
+                print("done looking at group %s" % group.name())
+        print("done making guesses at level %d" % level)
         return False
 
     # Look for a group which has exactly one free cell.

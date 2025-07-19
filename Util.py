@@ -23,38 +23,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-# Define the cells of the playing area for the "Queens" game
+# Define the general-purpose stuff used by the "Queens" game.
+
+DEBUG = True
 
 
-from Util import FatalException
-
-WHITE = 'W'
-YELLOW = 'Y'
-ORANGE = 'O'
-RED = 'R'
-PINK = 'P'
-VIOLET = 'V'
-BLUE = 'B'
-SKY_BLUE = 'S'
-LIME = 'L'
-GRAY = 'G'
-ALL_COLORS = [WHITE, YELLOW, ORANGE, RED, PINK,
-              VIOLET, BLUE, SKY_BLUE, LIME, GRAY]
+class InputException(BaseException):
+    pass
 
 
-class Cell():
-    def __init__(self, row, col, color):
-        if color not in ALL_COLORS:
-            raise FatalException("illegal color %s" % color)
-        self._row = row
-        self._col = col
-        self._color = color
+class FatalException(BaseException):
+    pass
 
-    def row(self):
-        return self._row
 
-    def col(self):
-        return self._col
+class Solution(BaseException):
+    def __init__(self, message, state):
+        super().__init__(message)
+        self._state = state
 
-    def color(self):
-        return self._color
+    def state(self):
+        return self._state
+
+
+def trace(msg):
+    if DEBUG:
+        print(msg)

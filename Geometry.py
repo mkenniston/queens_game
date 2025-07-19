@@ -27,6 +27,7 @@ THE SOFTWARE.
 # The "Geometry" object contains all the immutable information.
 
 
+from Util import InputException
 from Cell import Cell, ALL_COLORS
 from Group import RowGroup, ColGroup, ColorGroup
 
@@ -109,7 +110,7 @@ class Geometry():
         size = len(lines)
         for line in lines:
             if len(line) != size:
-                raise BaseException(
+                raise InputException(
                     'line "%s" has incorrect length %d; it should be %d' %
                     (line, len(line), size))
 
@@ -117,6 +118,6 @@ class Geometry():
         for line in lines:
             for char in line:
                 if char not in ALL_COLORS:
-                    raise BaseException(
+                    raise InputException(
                        'line "%s" has invalid color "%s"' % (line, char))
         return lines

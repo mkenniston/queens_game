@@ -27,13 +27,14 @@ THE SOFTWARE.
 
 
 import sys
+from Util import InputException
 from Game import Game
 
 
 def main():
     args = sys.argv
     if len(args) != 1:
-        raise BaseException("usage: %s" % args[0])
+        raise InputException("usage: %s" % args[0])
     with sys.stdin as file:
         description = file.read()
 
