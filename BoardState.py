@@ -27,7 +27,7 @@ THE SOFTWARE.
 # The "BoardState" object contains all the mutable information.
 
 
-from BoardGeom import BoardGeom
+from Geometry import Geometry
 
 FREE = ' '
 BLOCKED = 'x'
@@ -37,7 +37,7 @@ ALL_STATES = [FREE, BLOCKED, QUEEN]
 
 class BoardState():
     def __init__(self, arg):
-        if isinstance(arg, BoardGeom):
+        if isinstance(arg, Geometry):
             self._init_new(arg)
         elif isinstance(arg, BoardState):
             self._init_copy(arg)
@@ -45,27 +45,27 @@ class BoardState():
             raise BaseException("illegal arg type %s" % type(arg))
         return
 
-    def _init_new(self, board_geom):
-        self._board_geom = board_geom
-        self._groups = self._board_geom.groups()
-        size = self._board_geom.size()
+    def _init_new(self, geom):
+        self._geom = geom
+        self._groups = self._geom.groups()
+        size = self._geom.size()
         self._cell_states = [[FREE] * size for i in range(size)]
         self.recalc_free_cells()
         self._num_queens = 0
 
     def _init_copy(self, orig):
         # "self" is the new copy
-        self._board_geom = orig._board_geom
+        self._geom = orig._geom
         self._groups = orig._groups
-        size = self._board_geom.size()
+        size = self._geom.size()
         self._cell_states = [[orig._cell_states[row][col]
                               for col in range(size)]
                              for row in range(size)]
         self.recalc_free_cells()
         self._num_queens = orig._num_queens
 
-    def board_geom(self):
-        return self._board_geom
+    def geom(self):
+        return self._geom
 
     def num_queens(self):
         return self._num_queens
@@ -98,7 +98,7 @@ class BoardState():
         return self._cell_states[row][col]
 
     def _set_blocked_by_queen(self, row, col):
-        size = self._board_geom.size()
+        size = self._geom.size()
 
         # Block all immediate neighbors of the new queen.
         for row_inc in [-1, 0, +1]:
@@ -120,7 +120,7 @@ class BoardState():
             self.set_cell_state(row, c, BLOCKED)
 
         # Block all other cells the same color as the new queen's cell.
-        geom = self._board_geom
+        geom = self._geom
         color = geom.cell_color(row, col)
         group = geom.color_group(color)
         for cell in group.cells():
@@ -129,7 +129,7 @@ class BoardState():
             self.set_cell_state(cell.row(), cell.col(), BLOCKED)
 
     def set_cell_state(self, row, col, new_state):
-        size = self._board_geom.size()
+        size = self._geom.size()
         if row < 0 or row >= size or col < 0 or col >= size:
             return  # make it easier to block cells adjacent to new queen
         if new_state not in ALL_STATES:

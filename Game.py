@@ -27,7 +27,7 @@ THE SOFTWARE.
 # and provide the logic about how to play.
 
 
-from BoardGeom import BoardGeom
+from Geometry import Geometry
 from BoardState import BoardState, FREE, BLOCKED, QUEEN
 
 DISPLAY_STATE = "state"
@@ -36,9 +36,9 @@ DISPLAY_COLOR = "color"
 
 class Game():
     def __init__(self, description):
-        self._board_geom = BoardGeom(description)
-        self._size = self._board_geom.size()
-        self._board_state = BoardState(self._board_geom)
+        self._geom = Geometry(description)
+        self._size = self._geom.size()
+        self._board_state = BoardState(self._geom)
         self.show(self._board_state, DISPLAY_COLOR)
 
     def _show_horiz_line(self):
@@ -52,7 +52,7 @@ class Game():
         for col in range(self._size):
             pieces.append(' ')
             if which == DISPLAY_COLOR:
-                info = board_state._board_geom.cell_color(row, col)
+                info = board_state.geom().cell_color(row, col)
             else:
                 info = board_state.cell_state(row, col)
             pieces.append(info)
@@ -88,7 +88,7 @@ class Game():
 
     def _try_guesses(self, board_state):
         # Sort groups by number of free cells
-        groups = board_state.board_geom().groups()
+        groups = board_state.geom().groups()
         sort_by_num_free = (
             lambda x: board_state.num_free_cells_in_group(x.number()))
         sorted_groups = sorted(groups, key=sort_by_num_free)
@@ -109,13 +109,14 @@ class Game():
                     if self._solve(trial_state):
                         return True
                     print("retracting guess at %d, %d" % (qr, qc))
+                    board_state.set_cell_state(qr, qc, BLOCKED)
         return False
 
     # Look for a group which has exactly one free cell.
     # A queen must go there (for rows, columns, and color groups).
 
     def _add_a_queen(self, board_state):
-        geom = board_state.board_geom()
+        geom = board_state.geom()
         for group in geom.groups():
             free_cells = board_state.get_cells_in_group(group, state=FREE)
             if len(free_cells) == 1:
@@ -132,7 +133,7 @@ class Game():
     # in that row or column that belong to other groups.
 
     def _reserve_linear_free_space(self, board_state):
-        geom = board_state.board_geom()
+        geom = board_state.geom()
         for color_group in geom.color_groups():
             free_cells = board_state.get_cells_in_group(
                              color_group, state=FREE)

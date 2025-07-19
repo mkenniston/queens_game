@@ -24,14 +24,14 @@ THE SOFTWARE.
 """
 
 # Define the playing area for the "Queens" game.
-# The "BoardGeom" object contains all the immutable information.
+# The "Geometry" object contains all the immutable information.
 
 
 from Cell import Cell, ALL_COLORS
 from Group import RowGroup, ColGroup, ColorGroup
 
 
-class BoardGeom():
+class Geometry():
     def __init__(self, description):
         desc_lines = self._parse(description)
         self._size = len(desc_lines)
