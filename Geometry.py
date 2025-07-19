@@ -27,7 +27,7 @@ THE SOFTWARE.
 # The "Geometry" object contains all the immutable information.
 
 
-from Util import InputException
+from Util import InputException, trace
 from Cell import Cell, ALL_COLORS
 from Group import RowGroup, ColGroup, ColorGroup
 
@@ -89,9 +89,9 @@ class Geometry():
         return self._color_groups.values()
 
     def cell_color(self, row, col):
-        # print("DEBUG: getting color for (%d, %d)" % (row, col))
+        trace("DEBUG: getting color for (%d, %d)" % (row, col))
         cell = self._cells[row][col]
-        # print("       found color %s" % cell.color())
+        trace("       found color %s" % cell.color())
         return cell.color()
 
     def _parse(self, description):
@@ -101,10 +101,10 @@ class Geometry():
             line = line.strip()
             if len(line) < 1 or line[0] == '#':
                 continue
-            # print('->> "%s" len %d' % (line, len(line)))
+            trace('->> "%s" len %d' % (line, len(line)))
             lines.append(line)
-        # print("input read is:")
-        # print(lines)
+        trace("input read is:")
+        trace(lines)
 
         # validate the geometry
         size = len(lines)

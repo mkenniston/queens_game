@@ -27,7 +27,7 @@ THE SOFTWARE.
 # and provide the logic about how to play.
 
 
-from Util import Solution
+from Util import Solution, trace, DEBUG
 from Geometry import Geometry
 from State import State, FREE, BLOCKED, QUEEN
 
@@ -40,7 +40,8 @@ class Game():
         self._geom = Geometry(description)
         self._size = self._geom.size()
         self._state = State(self._geom)
-        self.show(self._state, DISPLAY_COLOR)
+        if DEBUG:
+            self.show(self._state, DISPLAY_COLOR)
 
     def _show_horiz_line(self):
         pieces = ['+']
@@ -77,10 +78,11 @@ class Game():
 
     def _solve(self, state, level):
         while True:
-            print("solving at level %d" % level)
+            trace("solving at level %d" % level)
             state.recalc_free_cells()
-            self.show(state, DISPLAY_STATE)
-            print("num_queens = %d" % state.num_queens())
+            if DEBUG:
+                self.show(state, DISPLAY_STATE)
+            trace("num_queens = %d" % state.num_queens())
 
             if state.num_queens() == self._size:
                 raise Solution("solution found", state)
@@ -98,7 +100,7 @@ class Game():
 
     def _try_guesses(self, state, level):
         # Sort groups by number of free cells
-        print("begin making guesses at level %d" % level)
+        trace("begin making guesses at level %d" % level)
         groups = state.geom().groups()
         sort_by_num_free = (
             lambda x: state.num_free_cells_in_group(x.number()))
@@ -106,24 +108,25 @@ class Game():
         for group in sorted_groups:
             free_cells = state.free_cells_in_group(group.number())
             if len(free_cells) > 0:
-                print("looking at group %s with %d free" %
+                trace("looking at group %s with %d free" %
                       (group.name(), len(free_cells)))
                 for queen_candidate in free_cells:
                     qr = queen_candidate.row()
                     qc = queen_candidate.col()
                     trial_state = State(state)
-                    print("making a guess: try a queen at %d, %d" % (qr, qc))
-                    print("TRACE A: %s" % trial_state.cell_state(qr, qc))
-                    self.show(state, DISPLAY_STATE)
+                    trace("making a guess: try a queen at %d, %d" % (qr, qc))
+                    trace("TRACE A: %s" % trial_state.cell_state(qr, qc))
+                    if DEBUG:
+                        self.show(state, DISPLAY_STATE)
                     trial_state.set_cell_state(qr, qc, QUEEN)
-                    print("TRACE B: %s" % trial_state.cell_state(qr, qc))
+                    trace("TRACE B: %s" % trial_state.cell_state(qr, qc))
                     if self._solve(trial_state, level + 1):
                         return True
-                    print("retracting guess at %d, %d" % (qr, qc))
+                    trace("retracting guess at %d, %d" % (qr, qc))
                     state.set_cell_state(qr, qc, BLOCKED)
                     return True
-                print("done looking at group %s" % group.name())
-        print("done making guesses at level %d" % level)
+                trace("done looking at group %s" % group.name())
+        trace("done making guesses at level %d" % level)
         return False
 
     # Look for a group which has exactly one free cell.
@@ -136,7 +139,7 @@ class Game():
             if len(free_cells) == 1:
                 cell = free_cells[0]
                 state.set_cell_state(cell.row(), cell.col(), QUEEN)
-                print("group %s has only one free cell,"
+                trace("group %s has only one free cell,"
                       " put a Queen at (%d, %d)" % (
                        group.name(), cell.row(), cell.col()))
                 return True
@@ -161,7 +164,7 @@ class Game():
                 row_number = free_rows.pop()
                 line_cells = geom.row_group(row_number).cells()
                 if self._reserve_strip(state, free_cells, line_cells):
-                    print("all group %s free cells are in row %d, "
+                    trace("all group %s free cells are in row %d, "
                           " block the rest of the row" %
                           (color_group.name(), cell.row()))
                     return True
@@ -170,7 +173,7 @@ class Game():
                 col_number = free_cols.pop()
                 line_cells = geom.col_group(col_number).cells()
                 if self._reserve_strip(state, free_cells, line_cells):
-                    print("all group %s free cells are in col %d, "
+                    trace("all group %s free cells are in col %d, "
                           " block the rest of the col" %
                           (color_group.name(), cell.col()))
                     return True

@@ -25,7 +25,8 @@ THE SOFTWARE.
 
 # Define the general-purpose stuff used by the "Queens" game.
 
-DEBUG = True
+# DEBUG = True
+DEBUG = False
 
 
 class InputException(BaseException):

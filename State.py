@@ -27,7 +27,7 @@ THE SOFTWARE.
 # The "State" object contains all the mutable information.
 
 
-from Util import FatalException
+from Util import FatalException, trace
 from Geometry import Geometry
 
 FREE = ' '
@@ -113,21 +113,21 @@ class State():
                 if row_inc == 0 and col_inc == 0:
                     continue  # don't block queen's own cell
                 self.set_cell_state(row + row_inc, col + col_inc, BLOCKED)
-                # print("TRACE nbr %d, %d" % (row + row_inc, col + col_inc))
+                trace("TRACE nbr %d, %d" % (row + row_inc, col + col_inc))
 
         # Block all other cells in the same col as the new queen.
         for r in range(size):
             if r == row:
                 continue
             self.set_cell_state(r, col, BLOCKED)
-            # print("TRACE col %d, %d" % (r, col))
+            trace("TRACE col %d, %d" % (r, col))
 
         # Block all other cells in the same row as the new queen.
         for c in range(size):
             if c == col:
                 continue
             self.set_cell_state(row, c, BLOCKED)
-            # print("TRACE row %d, %d" % (row, c))
+            trace("TRACE row %d, %d" % (row, c))
 
         # Block all other cells the same color as the new queen's cell.
         geom = self._geom
@@ -137,7 +137,7 @@ class State():
             if cell.row() == row and cell.col() == col:
                 continue  # don't block queen's own cell
             self.set_cell_state(cell.row(), cell.col(), BLOCKED)
-            # print("TRACE %s, %d, %d" % (color, cell.row(), cell.col()))
+            trace("TRACE %s, %d, %d" % (color, cell.row(), cell.col()))
 
     def set_cell_state(self, row, col, new_state):
         size = self._geom.size()
@@ -149,7 +149,7 @@ class State():
         if new_state == old_state:
             return  # harmless no-op
         if row == 0 and col == 1:
-            print("CHANGING %d, %d to %s" % (row, col, new_state))
+            trace("CHANGING %d, %d to %s" % (row, col, new_state))
         if old_state == BLOCKED:
             raise FatalException("attempt to unblock (%d, %d)" % (row, col))
         if old_state == QUEEN:
@@ -159,4 +159,4 @@ class State():
         if new_state == QUEEN:
             self._num_queens += 1
             self._set_blocked_by_queen(row, col)
-            print("num_queens = %d" % self._num_queens)
+            trace("num_queens = %d" % self._num_queens)
