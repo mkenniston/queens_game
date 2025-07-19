@@ -1,10 +1,21 @@
 
 More tasks:
 
-- add unittests
+- add lots more unit tests (using pytest)
+
+- add more shell-level testing:
+	- add remaining files in "boards/"
+	- gen all "solutions/" files
+	- validate the solutions are correct
+	- write a script to compare actual w/ reference solutions
+	- add a few cases that have no solutions
 
 - add a check to fail the solve branch if a non-queened group is fully blocked
-- maybe don't bother caching free-counts, to simplify code
+	(verify actually faster)
+- check for the case where free cells of two groups cover same two
+	rows (or cols), then block all other groups in those rows/cols
+	(verify actually faster)
 - use 4 types of groups (add neighborhoods), try to regularize
 	the code, add links from each cell to the 4 groups it determines
+- maybe don't bother caching free-counts, to simplify code
 
