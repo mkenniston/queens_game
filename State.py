@@ -24,7 +24,7 @@ THE SOFTWARE.
 """
 
 # Define the current state of a "Queens" game
-# The "BoardState" object contains all the mutable information.
+# The "State" object contains all the mutable information.
 
 
 from Geometry import Geometry
@@ -35,11 +35,11 @@ QUEEN = 'Q'
 ALL_STATES = [FREE, BLOCKED, QUEEN]
 
 
-class BoardState():
+class State():
     def __init__(self, arg):
         if isinstance(arg, Geometry):
             self._init_new(arg)
-        elif isinstance(arg, BoardState):
+        elif isinstance(arg, State):
             self._init_copy(arg)
         else:
             raise BaseException("illegal arg type %s" % type(arg))
