@@ -9,9 +9,11 @@ do
     if [ $? -eq 0 ]; then
         echo -n "$FN "
     else
-        echo "\n***** $FN failed check *****"
+        echo
+        echo "***** failed check for case $FN *****"
+        exit 1
     fi
 done
 rm foo$$
 echo
-
+echo "All tests passed"
