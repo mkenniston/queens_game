@@ -51,7 +51,13 @@ class Geometry():
             group_number += 1
         self._groups = self._row_groups + self._col_groups
         self._color_groups = {}
+        used_colors = set()
+        for line in desc_lines:
+            for char in line:
+                used_colors.add(char)
         for color in ALL_COLORS:
+            if color not in used_colors:
+                continue
             g = ColorGroup(self, group_number, "color-%s" % color)
             self._color_groups[color] = g
             self._groups.append(g)
@@ -69,6 +75,12 @@ class Geometry():
                 self._color_groups[color].add_cell(cell)
                 this_row.append(cell)
             self._cells.append(this_row)
+
+        # Sanity check the groups
+        if self._size != len(self._color_groups):
+            raise InputException(
+                "number of colors %d does not match puzzle size %d" %
+                (len(self._color_groups), self._size))
 
     def size(self):
         return self._size

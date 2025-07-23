@@ -24,32 +24,22 @@ THE SOFTWARE.
 """
 
 import pytest
-from Util import FatalException
-from Cell import Cell, ALL_COLORS, BLUE, PINK, YELLOW
+from Util import InputException
+from Geometry import Geometry
 
 
-def test_ALL_COLORS():
-    assert len(ALL_COLORS) == 10
-    for c in ALL_COLORS:
-        assert len(c) == 1
-        assert c == c.upper()
+def test_size():
+    g = Geometry("rrr\nbbb\nsss\n")
+    assert g.size() == 3
 
 
-def test_row():
-    c = Cell(2, 3, BLUE)
-    assert c.row() == 2
+def test_too_big():
+    with pytest.raises(InputException) as e:
+        Geometry("\n".join(["YORPVBSLWGG"] * 11))
+    assert "number of colors 10 does not match puzzle size 11" == str(e.value)
 
 
-def test_col():
-    c = Cell(5, 8, PINK)
-    assert c.col() == 8
-
-
-def test_color():
-    c = Cell(0, 7, YELLOW)
-    assert c.color() == 'Y'
-
-
-def test_bad_color():
-    with pytest.raises(FatalException):
-        Cell(2, 4, 'A')
+def test_too_little():
+    with pytest.raises(InputException) as e:
+        Geometry("VVY\nBBS\nBBS\n")
+    assert "number of colors 4 does not match puzzle size 3" == str(e.value)
