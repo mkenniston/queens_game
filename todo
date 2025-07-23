@@ -4,12 +4,10 @@ More tasks:
 - add lots more unit tests (using pytest)
 
 - add more shell-level testing:
-	- add remaining files in "boards/"
-	- gen all "solutions/" files
-	- validate the solutions are correct
-	- write a script to compare actual w/ reference solutions
+	- add a few cases that have invalid input
 	- add a few cases that have no solutions
 
+- add code to count how many steps it takes to solve a puzzle
 - add a check to fail the solve branch if a non-queened group is fully blocked
 	(verify actually faster)
 - check for the case where free cells of two groups cover same two
